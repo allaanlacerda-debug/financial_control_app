@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle Financeiro Analítico</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f0f23;
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #00d4ff;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        .status-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #333;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .card h3 {
+            color: #00d4ff;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .metric {
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .metric-label {
+            color: #a0a0a0;
+        }
+
+        .metric-value {
+            font-weight: bold;
+        }
+
+        .danger {
+            color: #ff4757;
+        }
+
+        .warning {
+            color: #ffa502;
+        }
+
+        .success {
+            color: #2ed573;
+        }
+
+        .info {
+            color: #00d4ff;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #333;
+        }
+
+        .tab {
+            background: none;
+            border: none;
+            color: #a0a0a0;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            color: #00d4ff;
+            border-bottom-color: #00d4ff;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #a0a0a0;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            background: #1a1a2e;
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: #e0e0e0;
+            font-size: 14px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #00d4ff 0%, #0084ff 100%);
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff4757 0%, #c0392b 100%);
+        }
+
+        .list-item {
+            background: #1a1a2e;
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+
+        .list-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #333;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff4757 0%, #ffa502 50%, #2ed573 100%);
+            transition: width 0.3s ease;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+
+        .alert-danger {
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid #ff4757;
+            color: #ff4757;
+        }
+
+        .alert-warning {
+            background: rgba(255, 165, 2, 0.1);
+            border: 1px solid #ffa502;
+            color: #ffa502;
+        }
+
+        .chart-placeholder {
+            height: 200px;
+            background: #1a1a2e;
+            border: 1px solid #333;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            margin: 15px 0;
+        }
+
+        .days-counter {
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            padding: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .status-overview {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-wrap: wrap;
+            }
+            
+            .tab {
+                flex: 1;
+                min-width: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 Controle Financeiro Analítico</h1>
+            <p>Análise completa da sua situação financeira</p>
+        </div>
+
+        <div class="status-overview">
+            <div class="card">
+                <h3>📊 Status Geral</h3>
+                <div class="metric">
+                    <span class="metric-label">Total de Dívidas:</span>
+                    <span class="metric-value danger" id="totalDebt">R$ 0,00</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Renda Mensal:</span>
+                    <span class="metric-value info" id="monthlyIncome">R$ 0,00</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Comprometimento:</span>
+                    <span class="metric-value warning" id="commitmentRate">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="commitmentProgress" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>⚠️ Análise de Risco</h3>
+                <div class="metric">
+                    <span class="metric-label">Risco SPC/Serasa:</span>
+                    <span class="metric-value" id="creditRisk">Baixo</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Dias para Negativação:</span>
+                    <span class="metric-value danger days-counter" id="daysToNegative">∞</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Score Estimado:</span>
+                    <span class="metric-value info" id="estimatedScore">Calculando...</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📈 Metas & Progresso</h3>
+                <div class="metric">
+                    <span class="metric-label">Meta de Economia:</span>
+                    <span class="metric-value success" id="savingsGoal">R$ 0,00</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Economia Atual:</span>
+                    <span class="metric-value" id="currentSavings">R$ 0,00</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Progresso:</span>
+                    <span class="metric-value" id="savingsProgress">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="savingsProgressBar" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('debts')">💳 Dívidas</button>
+            <button class="tab" onclick="showTab('income')">💰 Receitas</button>
+            <button class="tab" onclick="showTab('expenses')">📊 Gastos</button>
+            <button class="tab" onclick="showTab('actions')">⚡ Ações</button>
+            <button class="tab" onclick="showTab('analytics')">📈 Analytics</button>
+        </div>
+
+        <div id="debts" class="tab-content active">
+            <div class="card">
+                <h3>Gerenciar Dívidas</h3>
+                <div class="form-group">
+                    <label>Tipo de Dívida:</label>
+                    <select id="debtType">
+                        <option value="emprestimo">Empréstimo</option>
+                        <option value="cartao">Cartão de Crédito</option>
+                        <option value="financiamento">Financiamento</option>
+                        <option value="conta">Conta em Atraso</option>
+                        <option value="outros">Outros</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Descrição:</label>
+                    <input type="text" id="debtDescription" placeholder="Ex: Cartão Nubank">
+                </div>
+                <div class="form-group">
+                    <label>Valor Total:</label>
+                    <input type="number" id="debtAmount" placeholder="0.00" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Data de Vencimento:</label>
+                    <input type="date" id="debtDueDate">
+                </div>
+                <div class="form-group">
+                    <label>Juros Mensal (%):</label>
+                    <input type="number" id="debtInterest" placeholder="0.00" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Dias até Negativação:</label>
+                    <input type="number" id="debtDaysToNegative" placeholder="Ex: 90">
+                </div>
+                <button class="btn" onclick="addDebt()">Adicionar Dívida</button>
+            </div>
+
+            <div class="card">
+                <h3>Lista de Dívidas</h3>
+                <div id="debtsList"></div>
+            </div>
+        </div>
+
+        <div id="income" class="tab-content">
+            <div class="card">
+                <h3>Gerenciar Receitas</h3>
+                <div class="form-group">
+                    <label>Fonte de Renda:</label>
+                    <input type="text" id="incomeSource" placeholder="Ex: Salário CLT">
+                </div>
+                <div class="form-group">
+                    <label>Valor Mensal:</label>
+                    <input type="number" id="incomeAmount" placeholder="0.00" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Data de Recebimento:</label>
+                    <input type="date" id="incomeDate">
+                </div>
+                <button class="btn" onclick="addIncome()">Adicionar Receita</button>
+            </div>
+
+            <div class="card">
+                <h3>Lista de Receitas</h3>
+                <div id="incomesList"></div>
+            </div>
+        </div>
+
+        <div id="expenses" class="tab-content">
+            <div class="card">
+                <h3>Gerenciar Gastos</h3>
+                <div class="form-group">
+                    <label>Categoria:</label>
+                    <select id="expenseCategory">
+                        <option value="alimentacao">Alimentação</option>
+                        <option value="transporte">Transporte</option>
+                        <option value="moradia">Moradia</option>
+                        <option value="saude">Saúde</option>
+                        <option value="lazer">Lazer</option>
+                        <option value="outros">Outros</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Descrição:</label>
+                    <input type="text" id="expenseDescription" placeholder="Ex: Supermercado">
+                </div>
+                <div class="form-group">
+                    <label>Valor:</label>
+                    <input type="number" id="expenseAmount" placeholder="0.00" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Data:</label>
+                    <input type="date" id="expenseDate">
+                </div>
+                <button class="btn" onclick="addExpense()">Adicionar Gasto</button>
+            </div>
+
+            <div class="card">
+                <h3>Lista de Gastos</h3>
+                <div id="expensesList"></div>
+            </div>
+        </div>
+
+        <div id="actions" class="tab-content">
+            <div class="card">
+                <h3>Ações de Redução de Gastos</h3>
+                <div class="form-group">
+                    <label>Categoria da Ação:</label>
+                    <select id="actionCategory">
+                        <option value="corte_gasto">Corte de Gasto</option>
+                        <option value="renegociacao">Renegociação</option>
+                        <option value="renda_extra">Renda Extra</option>
+                        <option value="planejamento">Planejamento</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Descrição da Ação:</label>
+                    <textarea id="actionDescription" placeholder="Descreva a ação tomada"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Economia Estimada (R$):</label>
+                    <input type="number" id="actionSavings" placeholder="0.00" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Status:</label>
+                    <select id="actionStatus">
+                        <option value="planejada">Planejada</option>
+                        <option value="em_andamento">Em Andamento</option>
+                        <option value="concluida">Concluída</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="addAction()">Adicionar Ação</button>
+            </div>
+
+            <div class="card">
+                <h3>Lista de Ações</h3>
+                <div id="actionsList"></div>
+            </div>
+        </div>
+
+        <div id="analytics" class="tab-content">
+            <div class="card">
+                <h3>Análises Avançadas</h3>
+                
+                <div class="alert alert-danger" id="criticalAlerts" style="display: none;">
+                    <strong>⚠️ Alertas Críticos:</strong>
+                    <div id="alertsList"></div>
+                </div>
+
+                <div class="metric">
+                    <span class="metric-label">Projeção de Quitação:</span>
+                    <span class="metric-value info" id="payoffProjection">Calculando...</span>
+                </div>
+                
+                <div class="metric">
+                    <span class="metric-label">Economia Total Alcançada:</span>
+                    <span class="metric-value success" id="totalSavingsAchieved">R$ 0,00</span>
+                </div>
+
+                <div class="metric">
+                    <span class="metric-label">Fluxo de Caixa Mensal:</span>
+                    <span class="metric-value" id="monthlyCashFlow">R$ 0,00</span>
+                </div>
+
+                <div class="chart-placeholder">
+                    📊 Gráfico de Evolução das Dívidas
+                    <br><small>(Funcionalidade em desenvolvimento)</small>
+                </div>
+
+                <div class="chart-placeholder">
+                    📈 Projeção de Score de Crédito
+                    <br><small>(Funcionalidade em desenvolvimento)</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dados em memória
+        let debts = [];
+        let incomes = [];
+        let expenses = [];
+        let actions = [];
+
+        // Funções de navegação
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Funções de adição
+        function addDebt() {
+            const debt = {
+                id: Date.now(),
+                type: document.getElementById('debtType').value,
+                description: document.getElementById('debtDescription').value,
+                amount: parseFloat(document.getElementById('debtAmount').value) || 0,
+                dueDate: document.getElementById('debtDueDate').value,
+                interest: parseFloat(document.getElementById('debtInterest').value) || 0,
+                daysToNegative: parseInt(document.getElementById('debtDaysToNegative').value) || 90,
+                createdAt: new Date().toISOString()
+            };
+            
+            debts.push(debt);
+            clearDebtForm();
+            updateDisplays();
+        }
+
+        function addIncome() {
+            const income = {
+                id: Date.now(),
+                source: document.getElementById('incomeSource').value,
+                amount: parseFloat(document.getElementById('incomeAmount').value) || 0,
+                date: document.getElementById('incomeDate').value,
+                createdAt: new Date().toISOString()
+            };
+            
+            incomes.push(income);
+            clearIncomeForm();
+            updateDisplays();
+        }
+
+        function addExpense() {
+            const expense = {
+                id: Date.now(),
+                category: document.getElementById('expenseCategory').value,
+                description: document.getElementById('expenseDescription').value,
+                amount: parseFloat(document.getElementById('expenseAmount').value) || 0,
+                date: document.getElementById('expenseDate').value,
+                createdAt: new Date().toISOString()
+            };
+            
+            expenses.push(expense);
+            clearExpenseForm();
+            updateDisplays();
+        }
+
+        function addAction() {
+            const action = {
+                id: Date.now(),
+                category: document.getElementById('actionCategory').value,
+                description: document.getElementById('actionDescription').value,
+                savings: parseFloat(document.getElementById('actionSavings').value) || 0,
+                status: document.getElementById('actionStatus').value,
+                createdAt: new Date().toISOString()
+            };
+            
+            actions.push(action);
+            clearActionForm();
+            updateDisplays();
+        }
+
+        // Funções de limpeza de formulário
+        function clearDebtForm() {
+            document.getElementById('debtDescription').value = '';
+            document.getElementById('debtAmount').value = '';
+            document.getElementById('debtDueDate').value = '';
+            document.getElementById('debtInterest').value = '';
+            document.getElementById('debtDaysToNegative').value = '';
+        }
+
+        function clearIncomeForm() {
+            document.getElementById('incomeSource').value = '';
+            document.getElementById('incomeAmount').value = '';
+            document.getElementById('incomeDate').value = '';
+        }
+
+        function clearExpenseForm() {
+            document.getElementById('expenseDescription').value = '';
+            document.getElementById('expenseAmount').value = '';
+            document.getElementById('expenseDate').value = '';
+        }
+
+        function clearActionForm() {
+            document.getElementById('actionDescription').value = '';
+            document.getElementById('actionSavings').value = '';
+        }
+
+        // Funções de remoção
+        function removeDebt(id) {
+            debts = debts.filter(debt => debt.id !== id);
+            updateDisplays();
+        }
+
+        function removeIncome(id) {
+            incomes = incomes.filter(income => income.id !== id);
+            updateDisplays();
+        }
+
+        function removeExpense(id) {
+            expenses = expenses.filter(expense => expense.id !== id);
+            updateDisplays();
+        }
+
+        function removeAction(id) {
+            actions = actions.filter(action => action.id !== id);
+            updateDisplays();
+        }
+
+        // Função de atualização das exibições
+        function updateDisplays() {
+            updateStatusOverview();
+            updateDebtsList();
+            updateIncomesList();
+            updateExpensesList();
+            updateActionsList();
+            updateAnalytics();
+        }
+
+        function updateStatusOverview() {
+            const totalDebt = debts.reduce((sum, debt) => sum + debt.amount, 0);
+            const totalIncome = incomes.reduce((sum, income) => sum + income.amount, 0);
+            const commitmentRate = totalIncome > 0 ? (totalDebt / totalIncome) * 100 : 0;
+            
+            document.getElementById('totalDebt').textContent = formatCurrency(totalDebt);
+            document.getElementById('monthlyIncome').textContent = formatCurrency(totalIncome);
+            document.getElementById('commitmentRate').textContent = commitmentRate.toFixed(1) + '%';
+            document.getElementById('commitmentProgress').style.width = Math.min(commitmentRate, 100) + '%';
+            
+            // Análise de risco
+            let riskLevel = 'Baixo';
+            let riskClass = 'success';
+            if (commitmentRate > 70) {
+                riskLevel = 'Alto';
+                riskClass = 'danger';
+            } else if (commitmentRate > 50) {
+                riskLevel = 'Médio';
+                riskClass = 'warning';
+            }
+            
+            const riskElement = document.getElementById('creditRisk');
+            riskElement.textContent = riskLevel;
+            riskElement.className = 'metric-value ' + riskClass;
+            
+            // Dias para negativação
+            const minDaysToNegative = debts.length > 0 ? Math.min(...debts.map(debt => {
+                const dueDate = new Date(debt.dueDate);
+                const today = new Date();
+                const daysPassed = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
+                return Math.max(0, debt.daysToNegative - daysPassed);
+            })) : Infinity;
+            
+            document.getElementById('daysToNegative').textContent = 
+                minDaysToNegative === Infinity ? '∞' : minDaysToNegative + ' dias';
+            
+            // Score estimado
+            let estimatedScore = 700;
+            if (commitmentRate > 80) estimatedScore = 300;
+            else if (commitmentRate > 60) estimatedScore = 400;
+            else if (commitmentRate > 40) estimatedScore = 500;
+            else if (commitmentRate > 20) estimatedScore = 600;
+            
+            document.getElementById('estimatedScore').textContent = estimatedScore + ' - ' + getScoreCategory(estimatedScore);
+        }
+
+        function updateDebtsList() {
+            const container = document.getElementById('debtsList');
+            container.innerHTML = '';
+            
+            debts.forEach(debt => {
+                const dueDate = new Date(debt.dueDate);
+                const today = new Date();
+                const daysOverdue = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
+                const daysToNegative = Math.max(0, debt.daysToNegative - daysOverdue);
+                
+                const item = document.createElement('div');
+                item.className = 'list-item';
+                item.innerHTML = `
+                    <div class="list-item-header">
+                        <strong>${debt.description}</strong>
+                        <span class="${daysToNegative < 30 ? 'danger' : daysToNegative < 60 ? 'warning' : 'info'}">
+                            ${daysToNegative} dias
+                        </span>
+                    </div>
+                    <div class="metric">
+                        <span>Valor:</span>
+                        <span class="danger">${formatCurrency(debt.amount)}</span>
+                    </div>
+                    <div class="metric">
+                        <span>Vencimento:</span>
+                        <span>${formatDate(debt.dueDate)}</span>
+                    </div>
+                    <div class="metric">
+                        <span>Juros:</span>
+                        <span>${debt.interest}% a.m.</span>
+                    </div>
+                    <button class="btn btn-danger" onclick="removeDebt(${debt.id})">Remover</button>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function updateIncomesList() {
+            const container = document.getElementById('incomesList');
+            container.innerHTML = '';
+            
+            incomes.forEach(income => {
+                const item = document.createElement('div');
+                item.className = 'list-item';
+                item.innerHTML = `
+                    <div class="list-item-header">
+                        <strong>${income.source}</strong>
+                        <span class="success">${formatCurrency(income.amount)}</span>
+                    </div>
+                    <div class="metric">
+                        <span>Data:</span>
+                        <span>${formatDate(income.date)}</span>
+                    </div>
+                    <button class="btn btn-danger" onclick="removeIncome(${income.id})">Remover</button>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function updateExpensesList() {
+            const container = document.getElementById('expensesList');
+            container.innerHTML = '';
+            
+            expenses.forEach(expense => {
+                const item = document.createElement('div');
+                item.className = 'list-item';
+                item.innerHTML = `
+                    <div class="list-item-header">
+                        <strong>${expense.description}</strong>
+                        <span class="warning">${formatCurrency(expense.amount)}</span>
+                    </div>
+                    <div class="metric">
+                        <span>Categoria:</span>
+                        <span>${getCategoryName(expense.category)}</span>
+                    </div>
+                    <div class="metric">
+                        <span>Data:</span>
+                        <span>${formatDate(expense.date)}</span>
+                    </div>
+                    <button class="btn btn-danger" onclick="removeExpense(${expense.id})">Remover</button>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function updateActionsList() {
+            const container = document.getElementById('actionsList');
+            container.innerHTML = '';
+            
+            actions.forEach(action => {
+                const statusClass = action.status === 'concluida' ? 'success' : 
+                                  action.status === 'em_andamento' ? 'warning' : 'info';
+                
+                const item = document.createElement('div');
+                item.className = 'list-item';
+                item.innerHTML = `
+                    <div class="list-item-header">
+                        <strong>${getActionCategoryName(action.category)}</strong>
+                        <span class="${statusClass}">${getStatusName(action.status)}</span>
+                    </div>
+                    <div class="metric">
+                        <span>Economia:</span>
+                        <span class="success">${formatCurrency(action.savings)}</span>
+                    </div>
+                    <p style="margin: 10px 0; color: #a0a0a0;">${action.description}</p>
+                    <button class="btn btn-danger" onclick="removeAction(${action.id})">Remover</button>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function updateAnalytics() {
+            const totalIncome = incomes.reduce((sum, income) => sum + income.amount, 0);
+            const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+            const totalSavingsFromActions = actions
+                .filter(action => action.status === 'concluida')
+                .reduce((sum, action) => sum + action.savings, 0);
+            
+            const monthlyCashFlow = totalIncome - totalExpenses;
+            
+            document.getElementById('totalSavingsAchieved').textContent = formatCurrency(totalSavingsFromActions);
+            
+            const cashFlowElement = document.getElementById('monthlyCashFlow');
+            cashFlowElement.textContent = formatCurrency(monthlyCashFlow);
+            cashFlowElement.className = 'metric-value ' + (monthlyCashFlow >= 0 ? 'success' : 'danger');
+            
+            // Projeção de quitação
+            const totalDebt = debts.reduce((sum, debt) => sum + debt.amount, 0);
+            if (monthlyCashFlow > 0 && totalDebt > 0) {
+                const monthsToPayoff = Math.ceil(totalDebt / monthlyCashFlow);
+                document.getElementById('payoffProjection').textContent = 
+                    monthsToPayoff + ' meses (' + formatDate(new Date(Date.now() + monthsToPayoff * 30 * 24 * 60 * 60 * 1000)) + ')';
+            } else {
+                document.getElementById('payoffProjection').textContent = 'Fluxo insuficiente';
+            }
+            
+            // Alertas críticos
+            const alerts = [];
+            debts.forEach(debt => {
+                const dueDate = new Date(debt.dueDate);
+                const today = new Date();
+                const daysOverdue = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
+                const daysToNegative = Math.max(0, debt.daysToNegative - daysOverdue);
+                
+                if (daysToNegative <= 15) {
+                    alerts.push(`${debt.description}: apenas ${daysToNegative} dias para negativação!`);
+                }
+                if (daysOverdue > 0) {
+                    alerts.push(`${debt.description}: ${daysOverdue} dias em atraso`);
+                }
+            });
+            
+            if (monthlyCashFlow < 0) {
+                alerts.push(`Fluxo de caixa negativo: ${formatCurrency(Math.abs(monthlyCashFlow))}`);
+            }
+            
+            const commitmentRate = totalIncome > 0 ? (totalDebt / totalIncome) * 100 : 0;
+            if (commitmentRate > 80) {
+                alerts.push(`Taxa de comprometimento crítica: ${commitmentRate.toFixed(1)}%`);
+            }
+            
+            const alertsContainer = document.getElementById('criticalAlerts');
+            const alertsList = document.getElementById('alertsList');
+            
+            if (alerts.length > 0) {
+                alertsList.innerHTML = alerts.map(alert => `<div>• ${alert}</div>`).join('');
+                alertsContainer.style.display = 'block';
+            } else {
+                alertsContainer.style.display = 'none';
+            }
+            
+            // Atualizar metas de economia
+            const goalSavings = actions.reduce((sum, action) => sum + action.savings, 0);
+            const currentSavings = actions
+                .filter(action => action.status === 'concluida')
+                .reduce((sum, action) => sum + action.savings, 0);
+            
+            document.getElementById('savingsGoal').textContent = formatCurrency(goalSavings);
+            document.getElementById('currentSavings').textContent = formatCurrency(currentSavings);
+            
+            const savingsProgress = goalSavings > 0 ? (currentSavings / goalSavings) * 100 : 0;
+            document.getElementById('savingsProgress').textContent = savingsProgress.toFixed(1) + '%';
+            document.getElementById('savingsProgressBar').style.width = Math.min(savingsProgress, 100) + '%';
+        }
+
+        // Funções auxiliares
+        function formatCurrency(value) {
+            return 'R$ ' + value.toLocaleString('pt-BR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('pt-BR');
+        }
+
+        function getCategoryName(category) {
+            const categories = {
+                'alimentacao': 'Alimentação',
+                'transporte': 'Transporte',
+                'moradia': 'Moradia',
+                'saude': 'Saúde',
+                'lazer': 'Lazer',
+                'outros': 'Outros'
+            };
+            return categories[category] || category;
+        }
+
+        function getActionCategoryName(category) {
+            const categories = {
+                'corte_gasto': 'Corte de Gasto',
+                'renegociacao': 'Renegociação',
+                'renda_extra': 'Renda Extra',
+                'planejamento': 'Planejamento'
+            };
+            return categories[category] || category;
+        }
+
+        function getStatusName(status) {
+            const statuses = {
+                'planejada': 'Planejada',
+                'em_andamento': 'Em Andamento',
+                'concluida': 'Concluída'
+            };
+            return statuses[status] || status;
+        }
+
+        function getScoreCategory(score) {
+            if (score >= 800) return 'Excelente';
+            if (score >= 700) return 'Bom';
+            if (score >= 600) return 'Regular';
+            if (score >= 500) return 'Ruim';
+            return 'Muito Ruim';
+        }
+
+        // Funções de exportação e importação
+        function exportData() {
+            const data = {
+                debts,
+                incomes,
+                expenses,
+                actions,
+                exportDate: new Date().toISOString()
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = 'controle_financeiro_backup.json';
+            link.click();
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.debts) debts = data.debts;
+                    if (data.incomes) incomes = data.incomes;
+                    if (data.expenses) expenses = data.expenses;
+                    if (data.actions) actions = data.actions;
+                    updateDisplays();
+                    alert('Dados importados com sucesso!');
+                } catch (error) {
+                    alert('Erro ao importar dados. Verifique o arquivo.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Função de inicialização
+        function init() {
+            // Definir data padrão para hoje
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('debtDueDate').value = today;
+            document.getElementById('incomeDate').value = today;
+            document.getElementById('expenseDate').value = today;
+            
+            updateDisplays();
+        }
+
+        // Adicionar botões de exportação/importação no final da página
+        function addExportImportButtons() {
+            const container = document.querySelector('.container');
+            const buttonsDiv = document.createElement('div');
+            buttonsDiv.className = 'card';
+            buttonsDiv.innerHTML = `
+                <h3>🔄 Backup & Restore</h3>
+                <p style="color: #a0a0a0; margin-bottom: 15px;">
+                    Faça backup dos seus dados ou importe um backup anterior.
+                </p>
+                <button class="btn" onclick="exportData()">📤 Exportar Dados</button>
+                <input type="file" id="importInput" accept=".json" style="display: none;" onchange="importData(event)">
+                <button class="btn" onclick="document.getElementById('importInput').click()">📥 Importar Dados</button>
+                <div style="margin-top: 15px; padding: 10px; background: rgba(255, 165, 2, 0.1); border: 1px solid #ffa502; border-radius: 6px;">
+                    <small style="color: #ffa502;">
+                        💡 <strong>Dica:</strong> Faça backup regularmente dos seus dados. 
+                        Os dados são armazenados apenas no seu dispositivo.
+                    </small>
+                </div>
+            `;
+            container.appendChild(buttonsDiv);
+        }
+
+        // Executar quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            init();
+            addExportImportButtons();
+        });
+    </script>
+</body>
+</html>
+            
