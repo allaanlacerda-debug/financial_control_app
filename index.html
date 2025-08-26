@@ -1,1004 +1,765 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle Financeiro Analítico</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0f0f23;
-            color: #e0e0e0;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            color: #00d4ff;
-            margin-bottom: 10px;
-            font-size: 2rem;
-        }
-
-        .status-overview {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .card {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid #333;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-
-        .card h3 {
-            color: #00d4ff;
-            margin-bottom: 15px;
-            font-size: 1.1rem;
-        }
-
-        .metric {
-            margin: 10px 0;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .metric-label {
-            color: #a0a0a0;
-        }
-
-        .metric-value {
-            font-weight: bold;
-        }
-
-        .danger {
-            color: #ff4757;
-        }
-
-        .warning {
-            color: #ffa502;
-        }
-
-        .success {
-            color: #2ed573;
-        }
-
-        .info {
-            color: #00d4ff;
-        }
-
-        .tabs {
-            display: flex;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #333;
-        }
-
-        .tab {
-            background: none;
-            border: none;
-            color: #a0a0a0;
-            padding: 12px 20px;
-            cursor: pointer;
-            font-size: 14px;
-            border-bottom: 2px solid transparent;
-            transition: all 0.3s ease;
-        }
-
-        .tab.active {
-            color: #00d4ff;
-            border-bottom-color: #00d4ff;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: #a0a0a0;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 10px;
-            background: #1a1a2e;
-            border: 1px solid #333;
-            border-radius: 6px;
-            color: #e0e0e0;
-            font-size: 14px;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #00d4ff 0%, #0084ff 100%);
-            border: none;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            margin: 5px;
-            transition: all 0.3s ease;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, #ff4757 0%, #c0392b 100%);
-        }
-
-        .list-item {
-            background: #1a1a2e;
-            border: 1px solid #333;
-            border-radius: 6px;
-            padding: 15px;
-            margin: 10px 0;
-        }
-
-        .list-item-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: #333;
-            border-radius: 4px;
-            overflow: hidden;
-            margin: 10px 0;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #ff4757 0%, #ffa502 50%, #2ed573 100%);
-            transition: width 0.3s ease;
-        }
-
-        .alert {
-            padding: 15px;
-            border-radius: 6px;
-            margin: 15px 0;
-        }
-
-        .alert-danger {
-            background: rgba(255, 71, 87, 0.1);
-            border: 1px solid #ff4757;
-            color: #ff4757;
-        }
-
-        .alert-warning {
-            background: rgba(255, 165, 2, 0.1);
-            border: 1px solid #ffa502;
-            color: #ffa502;
-        }
-
-        .chart-placeholder {
-            height: 200px;
-            background: #1a1a2e;
-            border: 1px solid #333;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #666;
-            margin: 15px 0;
-        }
-
-        .days-counter {
-            font-size: 2rem;
-            font-weight: bold;
-            text-align: center;
-            padding: 20px;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-            
-            .header h1 {
-                font-size: 1.5rem;
-            }
-            
-            .status-overview {
-                grid-template-columns: 1fr;
-            }
-            
-            .tabs {
-                flex-wrap: wrap;
-            }
-            
-            .tab {
-                flex: 1;
-                min-width: 120px;
-            }
-        }
-    </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>FinApp – Recuperação Financeira</title>
+<style>
+:root{
+  --bg:#0b1220; --fg:#e5e7eb; --muted:#9ca3af; --card:#111827;
+  --primary:#2563eb; --success:#16a34a; --warn:#f59e0b; --danger:#dc2626;
+  --light:#f8fafc;
+}
+*{box-sizing:border-box}
+body{margin:0;font:14px/1.4 system-ui,Segoe UI,Roboto,Inter,Arial;background:var(--bg);color:var(--fg)}
+header{position:sticky;top:0;background:#0b1220f0;backdrop-filter:saturate(140%) blur(4px);z-index:5}
+.container{max-width:1100px;margin:0 auto;padding:16px}
+h1{font-size:20px;margin:8px 0 12px}
+nav{display:flex;gap:8px;flex-wrap:wrap}
+.tab{padding:8px 12px;border:1px solid #233047;border-radius:8px;color:var(--fg);cursor:pointer;background:transparent}
+.tab.active{background:var(--primary);border-color:var(--primary)}
+.grid{display:grid;gap:12px}
+.kpis{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.card{background:var(--card);border:1px solid #1f2937;border-radius:12px;padding:12px}
+.card h3{margin:0 0 8px;font-size:14px;color:#cbd5e1}
+.kpi{font-size:22px;font-weight:700}
+.sub{color:var(--muted);font-size:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row > *{flex:1}
+input,select,textarea{width:100%;padding:10px;border-radius:10px;border:1px solid #253244;background:#0f172a;color:var(--fg)}
+label{font-size:12px;color:#cbd5e1}
+button{padding:10px 12px;border-radius:10px;border:1px solid #233047;background:#162338;color:#e5e7eb;cursor:pointer}
+button.primary{background:var(--primary);border-color:var(--primary)}
+button.ghost{background:transparent}
+button.success{background:var(--success);border-color:var(--success)}
+button.warn{background:var(--warn);border-color:var(--warn)}
+button.danger{background:var(--danger);border-color:var(--danger)}
+table{width:100%;border-collapse:collapse}
+th,td{border-bottom:1px solid #1f2937;padding:8px;text-align:left}
+.badge{padding:3px 8px;border-radius:999px;font-size:11px}
+.badge.green{background:#063; color:#c6f6d5}
+.badge.yellow{background:#7a5b00;color:#fde68a}
+.badge.red{background:#5b1111;color:#fecaca}
+.right{float:right}
+small.help{color:var(--muted);display:block;margin-top:4px}
+hr{border:0;border-top:1px solid #1f2937;margin:12px 0}
+.footer{color:var(--muted);text-align:center;padding:24px 0}
+ul.clean{margin:0;padding-left:16px}
+canvas{width:100%;height:180px;background:#0f172a;border-radius:10px}
+.hidden{display:none}
+@media (max-width:600px){ .row>*{flex:100%} }
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>💰 Controle Financeiro Analítico</h1>
-            <p>Análise completa da sua situação financeira</p>
-        </div>
+<header>
+  <div class="container">
+    <h1>FinApp – Recuperação Financeira</h1>
+    <nav id="tabs"></nav>
+  </div>
+</header>
 
-        <div class="status-overview">
-            <div class="card">
-                <h3>📊 Status Geral</h3>
-                <div class="metric">
-                    <span class="metric-label">Total de Dívidas:</span>
-                    <span class="metric-value danger" id="totalDebt">R$ 0,00</span>
-                </div>
-                <div class="metric">
-                    <span class="metric-label">Renda Mensal:</span>
-                    <span class="metric-value info" id="monthlyIncome">R$ 0,00</span>
-                </div>
-                <div class="metric">
-                    <span class="metric-label">Comprometimento:</span>
-                    <span class="metric-value warning" id="commitmentRate">0%</span>
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="commitmentProgress" style="width: 0%"></div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3>⚠️ Análise de Risco</h3>
-                <div class="metric">
-                    <span class="metric-label">Risco SPC/Serasa:</span>
-                    <span class="metric-value" id="creditRisk">Baixo</span>
-                </div>
-                <div class="metric">
-                    <span class="metric-label">Dias para Negativação:</span>
-                    <span class="metric-value danger days-counter" id="daysToNegative">∞</span>
-                </div>
-                <div class="metric">
-                    <span class="metric-label">Score Estimado:</span>
-                    <span class="metric-value info" id="estimatedScore">Calculando...</span>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3>📈 Metas & Progresso</h3>
-                <div class="metric">
-                    <span class="metric-label">Meta de Economia:</span>
-                    <span class="metric-value success" id="savingsGoal">R$ 0,00</span>
-                </div>
-                <div class="metric">
-                    <span class="metric-label">Economia Atual:</span>
-                    <span class="metric-value" id="currentSavings">R$ 0,00</span>
-                </div>
-                <div class="metric">
-                    <span class="metric-label">Progresso:</span>
-                    <span class="metric-value" id="savingsProgress">0%</span>
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="savingsProgressBar" style="width: 0%"></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="tabs">
-            <button class="tab active" onclick="showTab('debts')">💳 Dívidas</button>
-            <button class="tab" onclick="showTab('income')">💰 Receitas</button>
-            <button class="tab" onclick="showTab('expenses')">📊 Gastos</button>
-            <button class="tab" onclick="showTab('actions')">⚡ Ações</button>
-            <button class="tab" onclick="showTab('analytics')">📈 Analytics</button>
-        </div>
-
-        <div id="debts" class="tab-content active">
-            <div class="card">
-                <h3>Gerenciar Dívidas</h3>
-                <div class="form-group">
-                    <label>Tipo de Dívida:</label>
-                    <select id="debtType">
-                        <option value="emprestimo">Empréstimo</option>
-                        <option value="cartao">Cartão de Crédito</option>
-                        <option value="financiamento">Financiamento</option>
-                        <option value="conta">Conta em Atraso</option>
-                        <option value="outros">Outros</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Descrição:</label>
-                    <input type="text" id="debtDescription" placeholder="Ex: Cartão Nubank">
-                </div>
-                <div class="form-group">
-                    <label>Valor Total:</label>
-                    <input type="number" id="debtAmount" placeholder="0.00" step="0.01">
-                </div>
-                <div class="form-group">
-                    <label>Data de Vencimento:</label>
-                    <input type="date" id="debtDueDate">
-                </div>
-                <div class="form-group">
-                    <label>Juros Mensal (%):</label>
-                    <input type="number" id="debtInterest" placeholder="0.00" step="0.01">
-                </div>
-                <div class="form-group">
-                    <label>Dias até Negativação:</label>
-                    <input type="number" id="debtDaysToNegative" placeholder="Ex: 90">
-                </div>
-                <button class="btn" onclick="addDebt()">Adicionar Dívida</button>
-            </div>
-
-            <div class="card">
-                <h3>Lista de Dívidas</h3>
-                <div id="debtsList"></div>
-            </div>
-        </div>
-
-        <div id="income" class="tab-content">
-            <div class="card">
-                <h3>Gerenciar Receitas</h3>
-                <div class="form-group">
-                    <label>Fonte de Renda:</label>
-                    <input type="text" id="incomeSource" placeholder="Ex: Salário CLT">
-                </div>
-                <div class="form-group">
-                    <label>Valor Mensal:</label>
-                    <input type="number" id="incomeAmount" placeholder="0.00" step="0.01">
-                </div>
-                <div class="form-group">
-                    <label>Data de Recebimento:</label>
-                    <input type="date" id="incomeDate">
-                </div>
-                <button class="btn" onclick="addIncome()">Adicionar Receita</button>
-            </div>
-
-            <div class="card">
-                <h3>Lista de Receitas</h3>
-                <div id="incomesList"></div>
-            </div>
-        </div>
-
-        <div id="expenses" class="tab-content">
-            <div class="card">
-                <h3>Gerenciar Gastos</h3>
-                <div class="form-group">
-                    <label>Categoria:</label>
-                    <select id="expenseCategory">
-                        <option value="alimentacao">Alimentação</option>
-                        <option value="transporte">Transporte</option>
-                        <option value="moradia">Moradia</option>
-                        <option value="saude">Saúde</option>
-                        <option value="lazer">Lazer</option>
-                        <option value="outros">Outros</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Descrição:</label>
-                    <input type="text" id="expenseDescription" placeholder="Ex: Supermercado">
-                </div>
-                <div class="form-group">
-                    <label>Valor:</label>
-                    <input type="number" id="expenseAmount" placeholder="0.00" step="0.01">
-                </div>
-                <div class="form-group">
-                    <label>Data:</label>
-                    <input type="date" id="expenseDate">
-                </div>
-                <button class="btn" onclick="addExpense()">Adicionar Gasto</button>
-            </div>
-
-            <div class="card">
-                <h3>Lista de Gastos</h3>
-                <div id="expensesList"></div>
-            </div>
-        </div>
-
-        <div id="actions" class="tab-content">
-            <div class="card">
-                <h3>Ações de Redução de Gastos</h3>
-                <div class="form-group">
-                    <label>Categoria da Ação:</label>
-                    <select id="actionCategory">
-                        <option value="corte_gasto">Corte de Gasto</option>
-                        <option value="renegociacao">Renegociação</option>
-                        <option value="renda_extra">Renda Extra</option>
-                        <option value="planejamento">Planejamento</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Descrição da Ação:</label>
-                    <textarea id="actionDescription" placeholder="Descreva a ação tomada"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Economia Estimada (R$):</label>
-                    <input type="number" id="actionSavings" placeholder="0.00" step="0.01">
-                </div>
-                <div class="form-group">
-                    <label>Status:</label>
-                    <select id="actionStatus">
-                        <option value="planejada">Planejada</option>
-                        <option value="em_andamento">Em Andamento</option>
-                        <option value="concluida">Concluída</option>
-                    </select>
-                </div>
-                <button class="btn" onclick="addAction()">Adicionar Ação</button>
-            </div>
-
-            <div class="card">
-                <h3>Lista de Ações</h3>
-                <div id="actionsList"></div>
-            </div>
-        </div>
-
-        <div id="analytics" class="tab-content">
-            <div class="card">
-                <h3>Análises Avançadas</h3>
-                
-                <div class="alert alert-danger" id="criticalAlerts" style="display: none;">
-                    <strong>⚠️ Alertas Críticos:</strong>
-                    <div id="alertsList"></div>
-                </div>
-
-                <div class="metric">
-                    <span class="metric-label">Projeção de Quitação:</span>
-                    <span class="metric-value info" id="payoffProjection">Calculando...</span>
-                </div>
-                
-                <div class="metric">
-                    <span class="metric-label">Economia Total Alcançada:</span>
-                    <span class="metric-value success" id="totalSavingsAchieved">R$ 0,00</span>
-                </div>
-
-                <div class="metric">
-                    <span class="metric-label">Fluxo de Caixa Mensal:</span>
-                    <span class="metric-value" id="monthlyCashFlow">R$ 0,00</span>
-                </div>
-
-                <div class="chart-placeholder">
-                    📊 Gráfico de Evolução das Dívidas
-                    <br><small>(Funcionalidade em desenvolvimento)</small>
-                </div>
-
-                <div class="chart-placeholder">
-                    📈 Projeção de Score de Crédito
-                    <br><small>(Funcionalidade em desenvolvimento)</small>
-                </div>
-            </div>
-        </div>
+<main class="container">
+  <!-- DASHBOARD -->
+  <section id="tab-dashboard" class="tabpane">
+    <div class="grid kpis">
+      <div class="card">
+        <h3>Saldo Devedor Total</h3>
+        <div class="kpi" id="kpi-total-debt">R$ 0,00</div>
+        <div class="sub" id="kpi-trend">Evolução: —</div>
+      </div>
+      <div class="card">
+        <h3>Próximo Vencimento Crítico</h3>
+        <div class="kpi" id="kpi-next-due">—</div>
+        <div class="sub" id="kpi-next-due-sub">—</div>
+      </div>
+      <div class="card">
+        <h3>% Renda Comprometida</h3>
+        <div class="kpi" id="kpi-prc">—</div>
+        <div class="sub" id="kpi-prc-sub">Limite: —</div>
+      </div>
+      <div class="card">
+        <h3>Progresso das Metas</h3>
+        <div class="kpi" id="kpi-goals">—</div>
+        <div class="sub" id="kpi-goals-sub">—</div>
+      </div>
     </div>
 
-    <script>
-        // Dados em memória
-        let debts = [];
-        let incomes = [];
-        let expenses = [];
-        let actions = [];
+    <div class="grid" style="grid-template-columns:1.2fr .8fr; margin-top:12px;">
+      <div class="card">
+        <h3>Gasto vs. Renda (mês)</h3>
+        <canvas id="chart-spend"></canvas>
+        <div class="sub" id="spend-legend">—</div>
+      </div>
+      <div class="card">
+        <h3>Alertas</h3>
+        <ul id="alerts" class="clean"></ul>
+      </div>
+    </div>
+  </section>
 
-        // Funções de navegação
-        function showTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            document.getElementById(tabName).classList.add('active');
-            event.target.classList.add('active');
-        }
+  <!-- DÍVIDAS -->
+  <section id="tab-dividas" class="tabpane hidden">
+    <div class="card">
+      <h3>Cadastrar/Editar Dívida</h3>
+      <div class="row">
+        <div><label>Tipo</label><select id="debt-type">
+          <option>cartao</option><option>emprestimo</option><option>conta_atraso</option></select></div>
+        <div><label>Credor</label><input id="debt-creditor" placeholder="Banco X"/></div>
+        <div><label>Saldo (R$)</label><input id="debt-out" type="number" min="0" step="0.01"/></div>
+        <div><label>Juros a.m. (%)</label><input id="debt-int" type="number" min="0" step="0.01" placeholder="ex.: 12"/></div>
+        <div><label>Vencimento</label><input id="debt-due" type="date"/></div>
+        <div><label>Risco de negativação?</label><select id="debt-risk"><option value="false">Não</option><option value="true">Sim</option></select></div>
+      </div>
+      <small class="help">Regra de parcela mínima (estimada): 5% do saldo (mín. R$50).</small>
+      <div class="row">
+        <button class="primary" id="btn-add-debt">Salvar Dívida</button>
+        <button class="ghost" id="btn-clear-debt">Limpar</button>
+      </div>
+    </div>
 
-        // Funções de adição
-        function addDebt() {
-            const debt = {
-                id: Date.now(),
-                type: document.getElementById('debtType').value,
-                description: document.getElementById('debtDescription').value,
-                amount: parseFloat(document.getElementById('debtAmount').value) || 0,
-                dueDate: document.getElementById('debtDueDate').value,
-                interest: parseFloat(document.getElementById('debtInterest').value) || 0,
-                daysToNegative: parseInt(document.getElementById('debtDaysToNegative').value) || 90,
-                createdAt: new Date().toISOString()
-            };
-            
-            debts.push(debt);
-            clearDebtForm();
-            updateDisplays();
-        }
+    <div class="card">
+      <h3>Minhas Dívidas</h3>
+      <table id="tbl-debts">
+        <thead><tr>
+          <th>Tipo</th><th>Credor</th><th>Saldo</th><th>Juros a.m.</th><th>Vencimento</th><th>Status</th><th>Ações</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
 
-        function addIncome() {
-            const income = {
-                id: Date.now(),
-                source: document.getElementById('incomeSource').value,
-                amount: parseFloat(document.getElementById('incomeAmount').value) || 0,
-                date: document.getElementById('incomeDate').value,
-                createdAt: new Date().toISOString()
-            };
-            
-            incomes.push(income);
-            clearIncomeForm();
-            updateDisplays();
-        }
+  <!-- RENDA & REGRAS -->
+  <section id="tab-regras" class="tabpane hidden">
+    <div class="card">
+      <h3>Renda e Regras</h3>
+      <div class="row">
+        <div><label>Renda mensal líquida (R$)</label><input id="income" type="number" min="0" step="0.01"/></div>
+        <div><label>Limite de gastos mensais (R$)</label><input id="limit-spend" type="number" min="0" step="0.01"/></div>
+        <div><label>% máx. renda comprometida</label><input id="max-prc" type="number" min="0" max="100" step="1" value="50"/></div>
+        <div><label>Estrategia de priorização</label>
+          <select id="strategy"><option value="hybrid">Híbrida (risco→juros→saldo)</option>
+            <option value="avalanche">Avalanche (maior juros)</option>
+            <option value="snowball">Snowball (menor saldo)</option></select>
+        </div>
+      </div>
+      <div class="row">
+        <button class="primary" id="btn-save-rules">Salvar Regras</button>
+      </div>
+    </div>
+  </section>
 
-        function addExpense() {
-            const expense = {
-                id: Date.now(),
-                category: document.getElementById('expenseCategory').value,
-                description: document.getElementById('expenseDescription').value,
-                amount: parseFloat(document.getElementById('expenseAmount').value) || 0,
-                date: document.getElementById('expenseDate').value,
-                createdAt: new Date().toISOString()
-            };
-            
-            expenses.push(expense);
-            clearExpenseForm();
-            updateDisplays();
-        }
+  <!-- GASTOS -->
+  <section id="tab-gastos" class="tabpane hidden">
+    <div class="card">
+      <h3>Registrar gasto</h3>
+      <div class="row">
+        <div><label>Valor (R$)</label><input id="exp-amt" type="number" step="0.01"/></div>
+        <div><label>Categoria</label>
+          <select id="exp-cat">
+            <option>Alimentação</option><option>Transporte</option><option>Lazer</option>
+            <option>Contas Fixas</option><option>Saúde</option><option>Educação</option>
+            <option>Outros</option>
+          </select>
+        </div>
+        <div><label>Método</label><select id="exp-method"><option>debito</option><option>credito</option></select></div>
+        <div><label>Data</label><input id="exp-date" type="date"/></div>
+        <div><label>Nota</label><input id="exp-note" placeholder="opcional"/></div>
+      </div>
+      <div class="row">
+        <button class="primary" id="btn-add-exp">Adicionar</button>
+      </div>
+    </div>
 
-        function addAction() {
-            const action = {
-                id: Date.now(),
-                category: document.getElementById('actionCategory').value,
-                description: document.getElementById('actionDescription').value,
-                savings: parseFloat(document.getElementById('actionSavings').value) || 0,
-                status: document.getElementById('actionStatus').value,
-                createdAt: new Date().toISOString()
-            };
-            
-            actions.push(action);
-            clearActionForm();
-            updateDisplays();
-        }
+    <div class="card">
+      <h3>Gastos do mês</h3>
+      <table id="tbl-exp">
+        <thead><tr><th>Data</th><th>Valor</th><th>Categoria</th><th>Método</th><th>Nota</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
 
-        // Funções de limpeza de formulário
-        function clearDebtForm() {
-            document.getElementById('debtDescription').value = '';
-            document.getElementById('debtAmount').value = '';
-            document.getElementById('debtDueDate').value = '';
-            document.getElementById('debtInterest').value = '';
-            document.getElementById('debtDaysToNegative').value = '';
-        }
+  <!-- METAS -->
+  <section id="tab-metas" class="tabpane hidden">
+    <div class="card">
+      <h3>Nova/Editar Meta</h3>
+      <div class="row">
+        <div><label>Nome</label><input id="goal-name" placeholder="Reserva de Emergência"/></div>
+        <div><label>Valor alvo (R$)</label><input id="goal-target" type="number" step="0.01"/></div>
+        <div><label>Prazo</label><input id="goal-date" type="date"/></div>
+      </div>
+      <div class="row">
+        <button class="primary" id="btn-add-goal">Salvar Meta</button>
+        <button class="ghost" id="btn-clear-goal">Limpar</button>
+      </div>
+    </div>
 
-        function clearIncomeForm() {
-            document.getElementById('incomeSource').value = '';
-            document.getElementById('incomeAmount').value = '';
-            document.getElementById('incomeDate').value = '';
-        }
+    <div class="card">
+      <h3>Metas</h3>
+      <table id="tbl-goals">
+        <thead><tr><th>Meta</th><th>Alvo</th><th>Prazo</th><th>Poup. sugerida/mês</th><th>Progresso</th><th>Ações</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <hr/>
+      <div id="goal-plan" class="sub">Selecione uma meta para ver o plano de ação.</div>
+    </div>
+  </section>
 
-        function clearExpenseForm() {
-            document.getElementById('expenseDescription').value = '';
-            document.getElementById('expenseAmount').value = '';
-            document.getElementById('expenseDate').value = '';
-        }
+  <!-- RELATÓRIOS / EXPORTAR -->
+  <section id="tab-relatorios" class="tabpane hidden">
+    <div class="grid" style="grid-template-columns:1fr 1fr;">
+      <div class="card">
+        <h3>Para onde vai seu dinheiro (mês)</h3>
+        <canvas id="chart-cats"></canvas>
+        <div class="sub" id="cats-legend">—</div>
+      </div>
+      <div class="card">
+        <h3>Projeção de Recuperação (simplificada)</h3>
+        <canvas id="chart-proj"></canvas>
+        <div class="sub" id="proj-legend">Assume parcela mínima + extra disponível.</div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Backup</h3>
+      <div class="row">
+        <button id="btn-export" class="success">Exportar JSON</button>
+        <input type="file" id="file-import" accept="application/json"/>
+        <button id="btn-import" class="primary">Importar</button>
+        <button id="btn-reset" class="danger right">Apagar tudo</button>
+      </div>
+      <small class="help">Dica: exporte periodicamente para manter um backup.</small>
+    </div>
+  </section>
 
-        function clearActionForm() {
-            document.getElementById('actionDescription').value = '';
-            document.getElementById('actionSavings').value = '';
-        }
+  <div class="footer">Feito com ♥ • Seus dados ficam no seu navegador (LocalStorage)</div>
+</main>
 
-        // Funções de remoção
-        function removeDebt(id) {
-            debts = debts.filter(debt => debt.id !== id);
-            updateDisplays();
-        }
+<script>
+/*** ===== Estado & Persistência ===== ***/
+const KEY='finapp_v1';
+const todayStr=()=>new Date().toISOString().slice(0,10);
+const state = load() || seed();
 
-        function removeIncome(id) {
-            incomes = incomes.filter(income => income.id !== id);
-            updateDisplays();
-        }
+function seed(){
+  const now = new Date();
+  const nextMonth = new Date(now.getFullYear(), now.getMonth()+1, 5);
+  return {
+    rules:{ income:4000, limitSpend:3000, maxPrc:50, strategy:'hybrid' },
+    debts:[
+      {id:id(), type:'cartao', creditor:'Banco X', outstanding:3200, interest:0.15, due:fmtDate(nextMonth), status:'open', risk:true},
+      {id:id(), type:'emprestimo', creditor:'Financeira Y', outstanding:8500, interest:0.06, due:fmtDate(new Date(now.getFullYear(), now.getMonth()+1, 12)), status:'open', risk:false}
+    ],
+    expenses:[],
+    goals:[],
+    history:[]
+  };
+}
+function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+function load(){ try{ return JSON.parse(localStorage.getItem(KEY)); }catch(e){ return null; } }
+function id(){ return Math.random().toString(36).slice(2,10); }
+function fmtBR(v){ return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
+function fmtNum(v){ return Number(v||0); }
+function fmtDate(d){ if(typeof d==='string') return d; return d.toISOString().slice(0,10); }
+function parseDate(s){ return new Date(s+'T00:00:00'); }
+function monthKey(dt=new Date()){ return dt.toISOString().slice(0,7); }
 
-        function removeExpense(id) {
-            expenses = expenses.filter(expense => expense.id !== id);
-            updateDisplays();
-        }
+/*** ===== UI: Tabs ===== ***/
+const tabList = [
+  ['dashboard','Dashboard'],
+  ['dividas','Dívidas'],
+  ['regras','Renda & Regras'],
+  ['gastos','Gastos'],
+  ['metas','Metas'],
+  ['relatorios','Relatórios/Backup'],
+];
+const tabsEl=document.getElementById('tabs');
+tabList.forEach(([k,label],i)=>{
+  const b=document.createElement('button');
+  b.className='tab'+(i===0?' active':'');
+  b.textContent=label;
+  b.onclick=()=>switchTab(k);
+  b.id='btn-tab-'+k;
+  tabsEl.appendChild(b);
+});
+function switchTab(k){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('btn-tab-'+k).classList.add('active');
+  document.querySelectorAll('.tabpane').forEach(p=>p.classList.add('hidden'));
+  document.getElementById('tab-'+k).classList.remove('hidden');
+  render(); // atualizar KPIs/gráficos ao trocar
+}
 
-        function removeAction(id) {
-            actions = actions.filter(action => action.id !== id);
-            updateDisplays();
-        }
+/*** ===== Regras ===== ***/
+const incomeEl = document.getElementById('income');
+const limitEl = document.getElementById('limit-spend');
+const maxPrcEl = document.getElementById('max-prc');
+const stratEl = document.getElementById('strategy');
+document.getElementById('btn-save-rules').onclick=()=>{
+  state.rules.income=fmtNum(incomeEl.value);
+  state.rules.limitSpend=fmtNum(limitEl.value);
+  state.rules.maxPrc=fmtNum(maxPrcEl.value);
+  state.rules.strategy=stratEl.value;
+  save(); toast('Regras salvas.');
+  render();
+};
 
-        // Função de atualização das exibições
-        function updateDisplays() {
-            updateStatusOverview();
-            updateDebtsList();
-            updateIncomesList();
-            updateExpensesList();
-            updateActionsList();
-            updateAnalytics();
-        }
+/*** ===== Dívidas ===== ***/
+const debtFields = {
+  type:document.getElementById('debt-type'),
+  creditor:document.getElementById('debt-creditor'),
+  out:document.getElementById('debt-out'),
+  int:document.getElementById('debt-int'),
+  due:document.getElementById('debt-due'),
+  risk:document.getElementById('debt-risk')
+};
+let editingDebtId=null;
 
-        function updateStatusOverview() {
-            const totalDebt = debts.reduce((sum, debt) => sum + debt.amount, 0);
-            const totalIncome = incomes.reduce((sum, income) => sum + income.amount, 0);
-            const commitmentRate = totalIncome > 0 ? (totalDebt / totalIncome) * 100 : 0;
-            
-            document.getElementById('totalDebt').textContent = formatCurrency(totalDebt);
-            document.getElementById('monthlyIncome').textContent = formatCurrency(totalIncome);
-            document.getElementById('commitmentRate').textContent = commitmentRate.toFixed(1) + '%';
-            document.getElementById('commitmentProgress').style.width = Math.min(commitmentRate, 100) + '%';
-            
-            // Análise de risco
-            let riskLevel = 'Baixo';
-            let riskClass = 'success';
-            if (commitmentRate > 70) {
-                riskLevel = 'Alto';
-                riskClass = 'danger';
-            } else if (commitmentRate > 50) {
-                riskLevel = 'Médio';
-                riskClass = 'warning';
-            }
-            
-            const riskElement = document.getElementById('creditRisk');
-            riskElement.textContent = riskLevel;
-            riskElement.className = 'metric-value ' + riskClass;
-            
-            // Dias para negativação
-            const minDaysToNegative = debts.length > 0 ? Math.min(...debts.map(debt => {
-                const dueDate = new Date(debt.dueDate);
-                const today = new Date();
-                const daysPassed = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
-                return Math.max(0, debt.daysToNegative - daysPassed);
-            })) : Infinity;
-            
-            document.getElementById('daysToNegative').textContent = 
-                minDaysToNegative === Infinity ? '∞' : minDaysToNegative + ' dias';
-            
-            // Score estimado
-            let estimatedScore = 700;
-            if (commitmentRate > 80) estimatedScore = 300;
-            else if (commitmentRate > 60) estimatedScore = 400;
-            else if (commitmentRate > 40) estimatedScore = 500;
-            else if (commitmentRate > 20) estimatedScore = 600;
-            
-            document.getElementById('estimatedScore').textContent = estimatedScore + ' - ' + getScoreCategory(estimatedScore);
-        }
+document.getElementById('btn-add-debt').onclick=()=>{
+  const d={
+    id: editingDebtId || id(),
+    type: debtFields.type.value,
+    creditor: debtFields.creditor.value||'—',
+    outstanding: fmtNum(debtFields.out.value),
+    interest: fmtNum(debtFields.int.value)/100 || 0,
+    due: debtFields.due.value || todayStr(),
+    status:'open',
+    risk: debtFields.risk.value==='true'
+  };
+  if(editingDebtId){
+    const i=state.debts.findIndex(x=>x.id===editingDebtId);
+    state.debts[i]=d; editingDebtId=null;
+  }else{
+    state.debts.push(d);
+  }
+  clearDebtForm(); save(); renderDebts(); render();
+};
+document.getElementById('btn-clear-debt').onclick=()=>{ editingDebtId=null; clearDebtForm(); };
+function clearDebtForm(){ Object.values(debtFields).forEach(el=>el.value=''); debtFields.type.value='cartao'; debtFields.risk.value='false'; }
 
-        function updateDebtsList() {
-            const container = document.getElementById('debtsList');
-            container.innerHTML = '';
-            
-            debts.forEach(debt => {
-                const dueDate = new Date(debt.dueDate);
-                const today = new Date();
-                const daysOverdue = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
-                const daysToNegative = Math.max(0, debt.daysToNegative - daysOverdue);
-                
-                const item = document.createElement('div');
-                item.className = 'list-item';
-                item.innerHTML = `
-                    <div class="list-item-header">
-                        <strong>${debt.description}</strong>
-                        <span class="${daysToNegative < 30 ? 'danger' : daysToNegative < 60 ? 'warning' : 'info'}">
-                            ${daysToNegative} dias
-                        </span>
-                    </div>
-                    <div class="metric">
-                        <span>Valor:</span>
-                        <span class="danger">${formatCurrency(debt.amount)}</span>
-                    </div>
-                    <div class="metric">
-                        <span>Vencimento:</span>
-                        <span>${formatDate(debt.dueDate)}</span>
-                    </div>
-                    <div class="metric">
-                        <span>Juros:</span>
-                        <span>${debt.interest}% a.m.</span>
-                    </div>
-                    <button class="btn btn-danger" onclick="removeDebt(${debt.id})">Remover</button>
-                `;
-                container.appendChild(item);
-            });
-        }
+function minPayment(debt){ return Math.min(debt.outstanding, Math.max(50, debt.outstanding*0.05)); }
+function markPaid(id, mode='partial'){
+  const d=state.debts.find(x=>x.id===id); if(!d) return;
+  let amt = mode==='full' ? d.outstanding : prompt('Valor pago (R$):', minPayment(d));
+  if(amt===null) return; amt = fmtNum(amt);
+  d.outstanding = Math.max(0, d.outstanding - amt);
+  if(d.outstanding<=0.009){ d.outstanding=0; d.status='settled'; }
+  save(); renderDebts(); render();
+}
+function editDebt(id){
+  const d=state.debts.find(x=>x.id===id); if(!d) return;
+  editingDebtId=id;
+  debtFields.type.value=d.type;
+  debtFields.creditor.value=d.creditor;
+  debtFields.out.value=d.outstanding;
+  debtFields.int.value=(d.interest*100).toFixed(2);
+  debtFields.due.value=d.due;
+  debtFields.risk.value=String(d.risk);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function removeDebt(id){
+  if(!confirm('Remover dívida?')) return;
+  state.debts=state.debts.filter(x=>x.id!==id); save(); renderDebts(); render();
+}
 
-        function updateIncomesList() {
-            const container = document.getElementById('incomesList');
-            container.innerHTML = '';
-            
-            incomes.forEach(income => {
-                const item = document.createElement('div');
-                item.className = 'list-item';
-                item.innerHTML = `
-                    <div class="list-item-header">
-                        <strong>${income.source}</strong>
-                        <span class="success">${formatCurrency(income.amount)}</span>
-                    </div>
-                    <div class="metric">
-                        <span>Data:</span>
-                        <span>${formatDate(income.date)}</span>
-                    </div>
-                    <button class="btn btn-danger" onclick="removeIncome(${income.id})">Remover</button>
-                `;
-                container.appendChild(item);
-            });
-        }
+/*** ===== Gastos ===== ***/
+document.getElementById('exp-date').value=todayStr();
+document.getElementById('btn-add-exp').onclick=()=>{
+  const e={
+    id:id(), value:fmtNum(document.getElementById('exp-amt').value||0),
+    cat:document.getElementById('exp-cat').value,
+    method:document.getElementById('exp-method').value,
+    date: document.getElementById('exp-date').value || todayStr(),
+    note: document.getElementById('exp-note').value||''
+  };
+  if(e.value<=0){ alert('Informe um valor.'); return;}
+  state.expenses.push(e); save(); renderExpenses(); render();
+  document.getElementById('exp-amt').value=''; document.getElementById('exp-note').value='';
+};
+function removeExp(id){ state.expenses=state.expenses.filter(x=>x.id!==id); save(); renderExpenses(); render(); }
 
-        function updateExpensesList() {
-            const container = document.getElementById('expensesList');
-            container.innerHTML = '';
-            
-            expenses.forEach(expense => {
-                const item = document.createElement('div');
-                item.className = 'list-item';
-                item.innerHTML = `
-                    <div class="list-item-header">
-                        <strong>${expense.description}</strong>
-                        <span class="warning">${formatCurrency(expense.amount)}</span>
-                    </div>
-                    <div class="metric">
-                        <span>Categoria:</span>
-                        <span>${getCategoryName(expense.category)}</span>
-                    </div>
-                    <div class="metric">
-                        <span>Data:</span>
-                        <span>${formatDate(expense.date)}</span>
-                    </div>
-                    <button class="btn btn-danger" onclick="removeExpense(${expense.id})">Remover</button>
-                `;
-                container.appendChild(item);
-            });
-        }
+/*** ===== Metas ===== ***/
+let editingGoalId=null;
+document.getElementById('btn-add-goal').onclick=()=>{
+  const g={
+    id: editingGoalId || id(),
+    name: document.getElementById('goal-name').value||'Meta',
+    target: fmtNum(document.getElementById('goal-target').value||0),
+    date: document.getElementById('goal-date').value || todayStr(),
+    saved: 0
+  };
+  if(editingGoalId){
+    const i=state.goals.findIndex(x=>x.id===editingGoalId);
+    state.goals[i]=g; editingGoalId=null;
+  }else{ state.goals.push(g); }
+  clearGoalForm(); save(); renderGoals(); render();
+};
+document.getElementById('btn-clear-goal').onclick=()=>{ editingGoalId=null; clearGoalForm(); };
+function clearGoalForm(){ ['goal-name','goal-target','goal-date'].forEach(id=>document.getElementById(id).value=''); }
 
-        function updateActionsList() {
-            const container = document.getElementById('actionsList');
-            container.innerHTML = '';
-            
-            actions.forEach(action => {
-                const statusClass = action.status === 'concluida' ? 'success' : 
-                                  action.status === 'em_andamento' ? 'warning' : 'info';
-                
-                const item = document.createElement('div');
-                item.className = 'list-item';
-                item.innerHTML = `
-                    <div class="list-item-header">
-                        <strong>${getActionCategoryName(action.category)}</strong>
-                        <span class="${statusClass}">${getStatusName(action.status)}</span>
-                    </div>
-                    <div class="metric">
-                        <span>Economia:</span>
-                        <span class="success">${formatCurrency(action.savings)}</span>
-                    </div>
-                    <p style="margin: 10px 0; color: #a0a0a0;">${action.description}</p>
-                    <button class="btn btn-danger" onclick="removeAction(${action.id})">Remover</button>
-                `;
-                container.appendChild(item);
-            });
-        }
+function editGoal(id){
+  const g=state.goals.find(x=>x.id===id); if(!g) return;
+  editingGoalId=id;
+  document.getElementById('goal-name').value=g.name;
+  document.getElementById('goal-target').value=g.target;
+  document.getElementById('goal-date').value=g.date;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function removeGoal(id){ if(!confirm('Remover meta?')) return; state.goals=state.goals.filter(x=>x.id!==id); save(); renderGoals(); render(); }
+function addGoalSaving(id){
+  const g=state.goals.find(x=>x.id===id); if(!g) return;
+  let amt = prompt('Quanto deseja registrar de poupança para esta meta (R$)?','100');
+  if(amt===null) return; g.saved+=fmtNum(amt); if(g.saved>g.target) g.saved=g.target;
+  save(); renderGoals(); render();
+}
 
-        function updateAnalytics() {
-            const totalIncome = incomes.reduce((sum, income) => sum + income.amount, 0);
-            const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
-            const totalSavingsFromActions = actions
-                .filter(action => action.status === 'concluida')
-                .reduce((sum, action) => sum + action.savings, 0);
-            
-            const monthlyCashFlow = totalIncome - totalExpenses;
-            
-            document.getElementById('totalSavingsAchieved').textContent = formatCurrency(totalSavingsFromActions);
-            
-            const cashFlowElement = document.getElementById('monthlyCashFlow');
-            cashFlowElement.textContent = formatCurrency(monthlyCashFlow);
-            cashFlowElement.className = 'metric-value ' + (monthlyCashFlow >= 0 ? 'success' : 'danger');
-            
-            // Projeção de quitação
-            const totalDebt = debts.reduce((sum, debt) => sum + debt.amount, 0);
-            if (monthlyCashFlow > 0 && totalDebt > 0) {
-                const monthsToPayoff = Math.ceil(totalDebt / monthlyCashFlow);
-                document.getElementById('payoffProjection').textContent = 
-                    monthsToPayoff + ' meses (' + formatDate(new Date(Date.now() + monthsToPayoff * 30 * 24 * 60 * 60 * 1000)) + ')';
-            } else {
-                document.getElementById('payoffProjection').textContent = 'Fluxo insuficiente';
-            }
-            
-            // Alertas críticos
-            const alerts = [];
-            debts.forEach(debt => {
-                const dueDate = new Date(debt.dueDate);
-                const today = new Date();
-                const daysOverdue = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
-                const daysToNegative = Math.max(0, debt.daysToNegative - daysOverdue);
-                
-                if (daysToNegative <= 15) {
-                    alerts.push(`${debt.description}: apenas ${daysToNegative} dias para negativação!`);
-                }
-                if (daysOverdue > 0) {
-                    alerts.push(`${debt.description}: ${daysOverdue} dias em atraso`);
-                }
-            });
-            
-            if (monthlyCashFlow < 0) {
-                alerts.push(`Fluxo de caixa negativo: ${formatCurrency(Math.abs(monthlyCashFlow))}`);
-            }
-            
-            const commitmentRate = totalIncome > 0 ? (totalDebt / totalIncome) * 100 : 0;
-            if (commitmentRate > 80) {
-                alerts.push(`Taxa de comprometimento crítica: ${commitmentRate.toFixed(1)}%`);
-            }
-            
-            const alertsContainer = document.getElementById('criticalAlerts');
-            const alertsList = document.getElementById('alertsList');
-            
-            if (alerts.length > 0) {
-                alertsList.innerHTML = alerts.map(alert => `<div>• ${alert}</div>`).join('');
-                alertsContainer.style.display = 'block';
-            } else {
-                alertsContainer.style.display = 'none';
-            }
-            
-            // Atualizar metas de economia
-            const goalSavings = actions.reduce((sum, action) => sum + action.savings, 0);
-            const currentSavings = actions
-                .filter(action => action.status === 'concluida')
-                .reduce((sum, action) => sum + action.savings, 0);
-            
-            document.getElementById('savingsGoal').textContent = formatCurrency(goalSavings);
-            document.getElementById('currentSavings').textContent = formatCurrency(currentSavings);
-            
-            const savingsProgress = goalSavings > 0 ? (currentSavings / goalSavings) * 100 : 0;
-            document.getElementById('savingsProgress').textContent = savingsProgress.toFixed(1) + '%';
-            document.getElementById('savingsProgressBar').style.width = Math.min(savingsProgress, 100) + '%';
-        }
+/*** ===== Lógica de Prioridade / Projeção ===== ***/
+function prioritizeDebts(list, refDate=new Date()){
+  const arr=list.filter(d=>d.status!=='settled').slice();
+  const strat=state.rules.strategy||'hybrid';
+  arr.sort((a,b)=>{
+    const ad=daysToDue(a.due, refDate), bd=daysToDue(b.due, refDate);
+    const riskScore = (x,dx)=> (x.status==='overdue'||dx<0?2:0)+(x.risk?1:0);
+    if(strat==='hybrid'){
+      const r = riskScore(b,bd)-riskScore(a,ad); if(r) return r;
+      const j = b.interest - a.interest; if(j) return j>0?1:-1;
+      return a.outstanding-b.outstanding;
+    }
+    if(strat==='avalanche'){ const j=b.interest-a.interest; if(j) return j>0?1:-1; return a.outstanding-b.outstanding; }
+    if(strat==='snowball'){ return a.outstanding-b.outstanding; }
+    return 0;
+  });
+  return arr;
+}
+function daysToDue(due, ref=new Date()){ return Math.ceil((parseDate(due)-ref)/86400000); }
 
-        // Funções auxiliares
-        function formatCurrency(value) {
-            return 'R$ ' + value.toLocaleString('pt-BR', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
-        }
+function simulate(months=6){
+  const ref = new Date(); const income=fmtNum(state.rules.income);
+  // Essenciais = gastos de categorias Contas Fixas + Alimentação + Saúde (mês atual)
+  const mkey=monthKey(ref);
+  const monthExps = state.expenses.filter(e=>monthKey(parseDate(e.date))===mkey);
+  const essentials = monthExps.filter(e=>['Contas Fixas','Alimentação','Saúde'].includes(e.cat))
+                              .reduce((s,e)=>s+e.value,0);
+  let debts = state.debts.map(d=>({...d})); // clone
+  const series=[{label:'Saldo total',value:debts.reduce((s,d)=>s+d.outstanding,0)}];
 
-        function formatDate(dateString) {
-            if (!dateString) return '-';
-            const date = new Date(dateString);
-            return date.toLocaleDateString('pt-BR');
-        }
+  for(let m=1;m<=months;m++){
+    // mínimos + excedente
+    const minSum = debts.filter(d=>d.status!=='settled').reduce((s,d)=>s+minPayment(d),0);
+    const capacity = Math.max(0, income - (essentials + minSum));
+    let buffer = capacity;
+    const ordered = prioritizeDebts(debts, new Date(ref.getFullYear(), ref.getMonth()+m, 1));
+    ordered.forEach(d=>{
+      if(d.status==='settled') return;
+      const interestAmt = d.outstanding * (d.interest||0);
+      let pay = minPayment(d);
+      let extra = Math.min(buffer, Math.max(0, d.outstanding + interestAmt - pay));
+      buffer -= extra;
+      const newOut = Math.max(0, d.outstanding + interestAmt - (pay+extra));
+      d.outstanding = newOut;
+      if(newOut<=0.009) d.status='settled';
+    });
+    series.push({label:`M${m}`,value:debts.reduce((s,d)=>s+d.outstanding,0)});
+  }
+  return series;
+}
 
-        function getCategoryName(category) {
-            const categories = {
-                'alimentacao': 'Alimentação',
-                'transporte': 'Transporte',
-                'moradia': 'Moradia',
-                'saude': 'Saúde',
-                'lazer': 'Lazer',
-                'outros': 'Outros'
-            };
-            return categories[category] || category;
-        }
+/*** ===== KPIs, Tabelas e Gráficos ===== ***/
+function render(){
+  // Regras form
+  incomeEl.value=state.rules.income||0;
+  limitEl.value=state.rules.limitSpend||0;
+  maxPrcEl.value=state.rules.maxPrc||50;
+  stratEl.value=state.rules.strategy||'hybrid';
 
-        function getActionCategoryName(category) {
-            const categories = {
-                'corte_gasto': 'Corte de Gasto',
-                'renegociacao': 'Renegociação',
-                'renda_extra': 'Renda Extra',
-                'planejamento': 'Planejamento'
-            };
-            return categories[category] || category;
-        }
+  // KPIs
+  const openDebts = state.debts.filter(d=>d.status!=='settled');
+  const totalDebt = openDebts.reduce((s,d)=>s+d.outstanding,0);
+  document.getElementById('kpi-total-debt').textContent=fmtBR(totalDebt);
 
-        function getStatusName(status) {
-            const statuses = {
-                'planejada': 'Planejada',
-                'em_andamento': 'Em Andamento',
-                'concluida': 'Concluída'
-            };
-            return statuses[status] || status;
-        }
+  // Próximo vencimento
+  const upcoming = openDebts
+    .slice().sort((a,b)=>parseDate(a.due)-parseDate(b.due));
+  const next = upcoming[0];
+  document.getElementById('kpi-next-due').textContent = next? new Date(next.due).toLocaleDateString('pt-BR'):'—';
+  document.getElementById('kpi-next-due-sub').textContent = next? `${next.creditor} • ${fmtBR(next.outstanding)}`:'—';
 
-        function getScoreCategory(score) {
-            if (score >= 800) return 'Excelente';
-            if (score >= 700) return 'Bom';
-            if (score >= 600) return 'Regular';
-            if (score >= 500) return 'Ruim';
-            return 'Muito Ruim';
-        }
+  // PRC
+  const mkey=monthKey(new Date());
+  const monthExps = state.expenses.filter(e=>monthKey(parseDate(e.date))===mkey);
+  const essentials = monthExps.filter(e=>['Contas Fixas','Alimentação','Saúde'].includes(e.cat))
+                              .reduce((s,e)=>s+e.value,0);
+  const minDebts = openDebts.reduce((s,d)=>s+minPayment(d),0);
+  const income=fmtNum(state.rules.income);
+  const prc = income<=0?1:( (minDebts + essentials) / income );
+  const prcPct = (prc*100);
+  const prcStr = isFinite(prcPct)? prcPct.toFixed(0)+'%':'—';
+  document.getElementById('kpi-prc').textContent = prcStr;
+  document.getElementById('kpi-prc-sub').textContent = `Limite: ${state.rules.maxPrc||0}%`;
+  document.getElementById('kpi-prc').style.color = prcPct<=30?'#a7f3d0':(prcPct<=50?'#fde68a':'#fecaca');
 
-        // Funções de exportação e importação
-        function exportData() {
-            const data = {
-                debts,
-                incomes,
-                expenses,
-                actions,
-                exportDate: new Date().toISOString()
-            };
-            
-            const dataStr = JSON.stringify(data, null, 2);
-            const dataBlob = new Blob([dataStr], {type: 'application/json'});
-            
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(dataBlob);
-            link.download = 'controle_financeiro_backup.json';
-            link.click();
-        }
+  // Metas KPI
+  const goals = state.goals;
+  let onTrack=0;
+  goals.forEach(g=>{
+    const monthsLeft = Math.max(1, monthDiff(new Date(), parseDate(g.date)));
+    const need = Math.max(0, g.target - g.saved)/monthsLeft;
+    const capacity = Math.max(0, income - (state.rules.limitSpend||0));
+    if(need <= capacity) onTrack++;
+  });
+  document.getElementById('kpi-goals').textContent = goals.length? `${onTrack}/${goals.length} on track`:'—';
+  document.getElementById('kpi-goals-sub').textContent = goals.length? 'Metas viáveis considerando limite e renda':'Crie sua primeira meta';
 
-        function importData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    if (data.debts) debts = data.debts;
-                    if (data.incomes) incomes = data.incomes;
-                    if (data.expenses) expenses = data.expenses;
-                    if (data.actions) actions = data.actions;
-                    updateDisplays();
-                    alert('Dados importados com sucesso!');
-                } catch (error) {
-                    alert('Erro ao importar dados. Verifique o arquivo.');
-                }
-            };
-            reader.readAsText(file);
-        }
+  // Alerts
+  renderAlerts();
 
-        // Função de inicialização
-        function init() {
-            // Definir data padrão para hoje
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('debtDueDate').value = today;
-            document.getElementById('incomeDate').value = today;
-            document.getElementById('expenseDate').value = today;
-            
-            updateDisplays();
-        }
+  // Charts
+  drawSpendVsIncome(monthExps, income, state.rules.limitSpend||0);
+  drawCatsChart(monthExps);
+  drawProjectionChart(simulate(6));
 
-        // Adicionar botões de exportação/importação no final da página
-        function addExportImportButtons() {
-            const container = document.querySelector('.container');
-            const buttonsDiv = document.createElement('div');
-            buttonsDiv.className = 'card';
-            buttonsDiv.innerHTML = `
-                <h3>🔄 Backup & Restore</h3>
-                <p style="color: #a0a0a0; margin-bottom: 15px;">
-                    Faça backup dos seus dados ou importe um backup anterior.
-                </p>
-                <button class="btn" onclick="exportData()">📤 Exportar Dados</button>
-                <input type="file" id="importInput" accept=".json" style="display: none;" onchange="importData(event)">
-                <button class="btn" onclick="document.getElementById('importInput').click()">📥 Importar Dados</button>
-                <div style="margin-top: 15px; padding: 10px; background: rgba(255, 165, 2, 0.1); border: 1px solid #ffa502; border-radius: 6px;">
-                    <small style="color: #ffa502;">
-                        💡 <strong>Dica:</strong> Faça backup regularmente dos seus dados. 
-                        Os dados são armazenados apenas no seu dispositivo.
-                    </small>
-                </div>
-            `;
-            container.appendChild(buttonsDiv);
-        }
+  // Tables
+  renderDebts();
+  renderExpenses();
+  renderGoals();
+}
+function monthDiff(a,b){ return (b.getFullYear()-a.getFullYear())*12 + (b.getMonth()-a.getMonth()); }
 
-        // Executar quando a página carregar
-        document.addEventListener('DOMContentLoaded', function() {
-            init();
-            addExportImportButtons();
-        });
-    </script>
+function renderAlerts(){
+  const list=document.getElementById('alerts'); list.innerHTML='';
+  const ref=new Date();
+  const items=[];
+  state.debts.filter(d=>d.status!=='settled').forEach(d=>{
+    const days=daysToDue(d.due,ref);
+    if(days<0) items.push({kind:'Atraso',msg:`${d.creditor} vencida há ${Math.abs(days)} dia(s).`, severity:'red'});
+    else if(days<=7) items.push({kind:'Vencimento',msg:`${d.creditor} vence em ${days} dia(s).`, severity:'yellow'});
+    if(d.risk) items.push({kind:'Negativação',msg:`Risco com ${d.creditor}. Priorize.`, severity:'red'});
+  });
+  const mkey=monthKey(ref);
+  const monthExps = state.expenses.filter(e=>monthKey(parseDate(e.date))===mkey)
+  const totalMonth = monthExps.reduce((s,e)=>s+e.value,0);
+  if(state.rules.limitSpend && totalMonth>state.rules.limitSpend)
+    items.push({kind:'Limite',msg:`Gastos do mês acima do limite (${fmtBR(totalMonth)}).`,severity:'yellow'});
+  const prcText=document.getElementById('kpi-prc').textContent.replace('%','')||'0';
+  if(Number(prcText)>state.rules.maxPrc) items.push({kind:'Comprometimento', msg:'% da renda comprometida acima do limite.', severity:'red'});
+
+  if(items.length===0){ list.innerHTML='<li class="sub">Sem alertas no momento.</li>'; return; }
+  items.forEach(a=>{
+    const li=document.createElement('li');
+    li.innerHTML=`<span class="badge ${a.severity==='red'?'red':'yellow'}">${a.kind}</span> ${a.msg}`;
+    list.appendChild(li);
+  });
+}
+
+function renderDebts(){
+  const tbody=document.querySelector('#tbl-debts tbody'); tbody.innerHTML='';
+  const rows = state.debts.slice().sort((a,b)=>parseDate(a.due)-parseDate(b.due));
+  rows.forEach(d=>{
+    const tr=document.createElement('tr');
+    const status = d.status==='settled'?'Quitada': (daysToDue(d.due)<0?'Atrasada':'Ativa');
+    tr.innerHTML=`
+      <td>${d.type}</td>
+      <td>${d.creditor}</td>
+      <td>${fmtBR(d.outstanding)}</td>
+      <td>${(d.interest*100).toFixed(2)}%</td>
+      <td>${new Date(d.due).toLocaleDateString('pt-BR')}</td>
+      <td>${status} ${d.risk?'<span class="badge red">risco</span>':''}</td>
+      <td>
+        ${d.status!=='settled'?`
+          <button class="success" onclick="markPaid('${d.id}','partial')">Pagar</button>
+          <button class="warn" onclick="markPaid('${d.id}','full')">Quitar</button>`:''}
+        <button onclick="editDebt('${d.id}')">Editar</button>
+        <button class="danger" onclick="removeDebt('${d.id}')">Remover</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderExpenses(){
+  const tbody=document.querySelector('#tbl-exp tbody'); tbody.innerHTML='';
+  const mkey=monthKey(new Date());
+  const rows = state.expenses.filter(e=>monthKey(parseDate(e.date))===mkey)
+               .sort((a,b)=>parseDate(b.date)-parseDate(a.date));
+  rows.forEach(e=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td>${new Date(e.date).toLocaleDateString('pt-BR')}</td>
+      <td>${fmtBR(e.value)}</td>
+      <td>${e.cat}</td>
+      <td>${e.method}</td>
+      <td>${e.note||''}</td>
+      <td><button class="danger" onclick="removeExp('${e.id}')">Excluir</button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderGoals(){
+  const tbody=document.querySelector('#tbl-goals tbody'); tbody.innerHTML='';
+  state.goals.forEach(g=>{
+    const monthsLeft=Math.max(1, monthDiff(new Date(), parseDate(g.date)));
+    const remain=Math.max(0, g.target - g.saved);
+    const needPerMonth=remain/monthsLeft;
+    const capacity = Math.max(0, (state.rules.income||0) - (state.rules.limitSpend||0));
+    const onTrack = needPerMonth<=capacity;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td>${g.name}</td>
+      <td>${fmtBR(g.target)}</td>
+      <td>${new Date(g.date).toLocaleDateString('pt-BR')}</td>
+      <td>${fmtBR(needPerMonth)}</td>
+      <td>${fmtBR(g.saved)} (${((g.saved/g.target)*100||0).toFixed(0)}%)</td>
+      <td>
+        <button class="success" onclick="addGoalSaving('${g.id}')">Registrar poupança</button>
+        <button onclick="selectGoal('${g.id}')">Plano</button>
+        <button class="ghost" onclick="editGoal('${g.id}')">Editar</button>
+        <button class="danger" onclick="removeGoal('${g.id}')">Remover</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function selectGoal(id){
+  const g=state.goals.find(x=>x.id===id); if(!g) return;
+  const plan = buildGoalPlan(g);
+  document.getElementById('goal-plan').innerHTML = plan;
+  switchTab('metas');
+}
+
+function buildGoalPlan(g){
+  const monthsLeft=Math.max(1, monthDiff(new Date(), parseDate(g.date)));
+  const remain=Math.max(0, g.target - g.saved);
+  const needPerMonth=remain/monthsLeft;
+
+  // capacidade: renda - (mínimo dívidas + essenciais médios)
+  const mkey=monthKey(new Date());
+  const monthExps = state.expenses.filter(e=>monthKey(parseDate(e.date))===mkey);
+  const essentials = monthExps.filter(e=>['Contas Fixas','Alimentação','Saúde'].includes(e.cat))
+                    .reduce((s,e)=>s+e.value,0);
+  const minDebts = state.debts.filter(d=>d.status!=='settled').reduce((s,d)=>s+minPayment(d),0);
+  const capacity = Math.max(0,(state.rules.income||0) - (essentials + minDebts));
+
+  // dívidas a priorizar
+  const priorities = prioritizeDebts(state.debts);
+
+  // sugestões de corte: Top 3 categorias (Lazer/Restaurantes/Transporte/Outros)
+  const cats = summarizeByCategory(monthExps);
+  const candidates = Object.entries(cats)
+    .filter(([c])=>['Lazer','Alimentação','Transporte','Outros'].includes(c))
+    .sort((a,b)=>b[1]-a[1]).slice(0,3);
+
+  const delta = Math.max(0, needPerMonth - capacity);
+  const suggestions = delta>0? `<li>Corte sugerido total: <b>${fmtBR(delta)}</b>/mês nas categorias: ${candidates.map(([c,v])=>`${c} (${fmtBR(Math.min(v,delta))})`).join(', ')}.</li>`: `<li>Capacidade atual cobre a poupança necessária.</li>`;
+
+  return `
+    <p><b>${g.name}</b> — precisa poupar <b>${fmtBR(needPerMonth)}</b>/mês por ${monthsLeft} mês(es).</p>
+    <ul class="clean">
+      <li>Priorize quitar na ordem: ${priorities.map(d=>`${d.creditor} (${(d.interest*100).toFixed(1)}% a.m.)`).join(' → ')||'—'}</li>
+      ${suggestions}
+      <li>Ajuste o limite de gastos em “Renda & Regras” para reforçar a poupança.</li>
+    </ul>
+  `;
+}
+
+function summarizeByCategory(exps){
+  const m={}; exps.forEach(e=>{ m[e.cat]=(m[e.cat]||0)+e.value; }); return m;
+}
+
+/*** ===== Gráficos (Canvas simples) ===== ***/
+function drawSpendVsIncome(monthExps, income, limit){
+  const spend = monthExps.reduce((s,e)=>s+e.value,0);
+  const data=[['Renda',income,'#2563eb'],['Gastos',spend,'#dc2626'],['Limite',limit,'#f59e0b']];
+  drawBars('chart-spend', data);
+  document.getElementById('spend-legend').textContent = `Renda: ${fmtBR(income)} • Gastos: ${fmtBR(spend)} • Limite: ${fmtBR(limit)}`;
+}
+function drawCatsChart(monthExps){
+  const cats=summarizeByCategory(monthExps);
+  const entries=Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  drawBars('chart-cats', entries.map(([k,v],i)=>[k,v,['#60a5fa','#34d399','#fbbf24','#f87171','#c084fc','#94a3b8'][i%6]]), true);
+  document.getElementById('cats-legend').textContent = entries.length? entries.map(([k,v])=>`${k}: ${fmtBR(v)}`).join(' • '):'Sem gastos no mês.';
+}
+function drawProjectionChart(series){
+  const labels=series.map(s=>s.label);
+  const values=series.map(s=>s.value);
+  drawLine('chart-proj', labels, values, '#34d399');
+  document.getElementById('proj-legend').textContent = `Saldo atual → ${labels[labels.length-1]}: ${fmtBR(values[values.length-1])}`;
+}
+function drawBars(id, data, horiz=false){
+  const c=document.getElementById(id); const ctx=c.getContext('2d');
+  const w=c.width=c.clientWidth, h=c.height=c.clientHeight;
+  ctx.clearRect(0,0,w,h);
+  const max=Math.max(1,...data.map(d=>d[1]));
+  const pad=30, gap=20;
+  const n=data.length;
+  const barW = horiz? (h-2*pad - (n-1)*gap)/n : (w-2*pad - (n-1)*gap)/n;
+  data.forEach((d,i)=>{
+    const v=d[1], color=d[2]||'#60a5fa';
+    ctx.fillStyle=color;
+    if(horiz){
+      const x=pad, y=pad+i*(barW+gap);
+      const len=(w-2*pad)*(v/max);
+      roundRect(ctx,x,y,len,barW,8,true);
+      ctx.fillStyle='#cbd5e1'; ctx.fillText(`${d[0]} (${fmtBR(v)})`, x+6, y+barW/1.6);
+    }else{
+      const x=pad+i*(barW+gap), y=h-pad, len=(h-2*pad)*(v/max);
+      roundRect(ctx,x,y-len,barW,len,8,true);
+      ctx.fillStyle='#cbd5e1'; ctx.fillText(d[0], x, y+12);
+    }
+  });
+}
+function drawLine(id, labels, values, stroke='#34d399'){
+  const c=document.getElementById(id); const ctx=c.getContext('2d');
+  const w=c.width=c.clientWidth, h=c.height=c.clientHeight; ctx.clearRect(0,0,w,h);
+  const pad=30; const max=Math.max(...values,1), min=Math.min(...values,0);
+  ctx.strokeStyle=stroke; ctx.lineWidth=2; ctx.beginPath();
+  values.forEach((v,i)=>{
+    const x=pad + (w-2*pad)*(i/(values.length-1));
+    const y=h-pad - (h-2*pad)*((v-min)/(max-min||1));
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+  // labels
+  ctx.fillStyle='#cbd5e1'; ctx.textAlign='center';
+  labels.forEach((lb,i)=>{
+    const x=pad + (w-2*pad)*(i/(labels.length-1)); ctx.fillText(lb, x, h-8);
+  });
+}
+function roundRect(ctx,x,y,w,h,r,fill){
+  if(w<0){x+=w;w*=-1}
+  if(h<0){y+=h;h*=-1}
+  r=Math.min(r,w/2,h/2); ctx.beginPath();
+  ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); if(fill) ctx.fill();
+}
+
+/*** ===== Exportar / Importar / Reset ===== ***/
+document.getElementById('btn-export').onclick=()=>{
+  const blob = new Blob([JSON.stringify(state,null,2)], {type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download = 'finapp-backup.json'; a.click(); URL.revokeObjectURL(a.href);
+};
+document.getElementById('btn-import').onclick=()=>{
+  const f=document.getElementById('file-import').files[0];
+  if(!f) return alert('Selecione um arquivo JSON.');
+  const reader=new FileReader();
+  reader.onload=()=>{ try{ const data=JSON.parse(reader.result);
+    Object.assign(state, data); save(); render(); alert('Importado com sucesso.');
+  }catch(e){ alert('Arquivo inválido.'); } };
+  reader.readAsText(f);
+};
+document.getElementById('btn-reset').onclick=()=>{ if(confirm('Apagar todos os dados?')){ localStorage.removeItem(KEY); location.reload(); } };
+
+/*** ===== Toast simples ===== ***/
+function toast(msg){
+  const el=document.createElement('div'); el.textContent=msg;
+  el.style.position='fixed'; el.style.bottom='16px'; el.style.right='16px';
+  el.style.background='#111827'; el.style.border='1px solid #1f2937';
+  el.style.padding='10px 14px'; el.style.borderRadius='8px'; el.style.zIndex='999';
+  document.body.appendChild(el); setTimeout(()=>el.remove(),2000);
+}
+
+/*** ===== Inicialização ===== ***/
+function initTables(){ renderDebts(); renderExpenses(); renderGoals(); }
+window.addEventListener('load',()=>{ render(); initTables(); });
+
+</script>
 </body>
 </html>
-            
